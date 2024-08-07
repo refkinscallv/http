@@ -1,0 +1,22 @@
+{
+    "name": "refkinscallv/http",
+    "description": "Simple HTTP management scope for PHP",
+    "version": "1.0.0",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "RF\\Http\\": "src/Http"
+        }
+    },
+    "authors": [
+        {
+            "name": "Refkinscallv",
+            "email": "refkinscallv@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "refkinscallv/fvss": "^1.2"
+    }
+}
