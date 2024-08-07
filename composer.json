@@ -1,7 +1,7 @@
 {
     "name": "refkinscallv/http",
     "description": "Simple HTTP management scope for PHP",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "type": "library",
     "license": "MIT",
     "autoload": {
