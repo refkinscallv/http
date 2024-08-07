@@ -37,19 +37,19 @@
         }
 
         public function some($keys) {
-            $filteredQuery = HttpHelper::filterArrayKeys($this->query, $keys);
-            return $filteredQuery;
+            $this->filteredQuery = HttpHelper::filterArrayKeys($this->query, $keys);
+            return $this->filteredQuery;
         }
 
         public function someRecursive($keys) {
-            $filteredQuery = HttpHelper::filterArrayKeysRecursive($this->query, $keys);
-            return $filteredQuery;
+            $this->filteredQuery = HttpHelper::filterArrayKeysRecursive($this->query, $keys);
+            return $this->filteredQuery;
         }
 
         public function count() {
             return [
                 "total" => count($this->query),
-                "filtered" => count($filteredQuery)
+                "filtered" => count($this->filteredQuery)
             ];
         }
 
