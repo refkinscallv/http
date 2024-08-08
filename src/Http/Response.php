@@ -15,6 +15,16 @@
             return $this;
         }
 
+        public function setHeaders($key, $value = null) {
+            if(is_array($key)) {
+                foreach($key as $xKey => $xVal) {
+                    header($xKey .": ". $value);
+                }
+            } else {
+                header($key .": ". $value);
+            }
+        }
+
         public function view($file, $data = []) {
             $this->viewData = $data;
 
