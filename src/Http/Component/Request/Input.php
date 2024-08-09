@@ -7,11 +7,15 @@
     class Input {
 
         private $input;
-
         private $filteredInput = false;
 
         public function __construct() {
             $this->input = $this->manageData($_POST);
+
+            if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+                parse_str(file_get_contents('php://input'), $putData);
+                $this->input = $this->manageData($putData);
+            }
         }
 
         private function manageData($data) {
@@ -29,11 +33,11 @@
         }
 
         public function get($key) {
-            return $this->input[$key];
+            return $this->input[$key] ?? null;
         }
 
         public function has($key) {
-            return isset($this->query[$key]);
+            return isset($this->input[$key]);
         }
 
         public function some($keys) {
