@@ -3,6 +3,7 @@
     namespace RF\Http;
 
     use CG\FVSS\Fvss;
+    use Exception;
 
     class Validation {
 
@@ -13,7 +14,15 @@
         }
 
         public function validate($data) {
-            return $this->validator->validate($data);
+            try {
+                $result = $this->validator->validate($data);
+                if ($result === false) {
+                    throw new Exception("Validation failed.");
+                }
+                return $result;
+            } catch (Exception $e) {
+                throw new Exception("Validation error: " . $e->getMessage());
+            }
         }
 
     }

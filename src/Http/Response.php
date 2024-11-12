@@ -2,48 +2,67 @@
 
     namespace RF\Http;
 
+    use Exception;
+
     class Response {
 
         public $viewData;
 
         public function __construct() {
             $this->viewData = [];
+            $this->response = $this;
         }
 
-        public function setStatus($code) {
-            http_response_code($code);
+        public function withHttpResponseCode($code) {
+            http_response_code((int) $code);
             return $this;
         }
 
-        public function setHeaders($key, $value = null) {
-            if(is_array($key)) {
-                foreach($key as $xKey => $xVal) {
-                    header($xKey .": ". $value);
+        public function withHeaders($key, $val = null) {
+            if (is_array($key)) {
+                foreach ($key as $xKey => $xVal) {
+                    header($xKey . ": " . $xVal);
                 }
             } else {
-                header($key .": ". $value);
+                header($key . ": " . $val);
             }
+            return $this;
         }
 
         public function view($file, $data = []) {
-            $this->viewData = $data;
+            $viewFile = $_SERVER["DOCUMENT_ROOT"] . "/public/views/" . $file . ".php";
 
-            $viewData = array_merge([
-                "viewData" => $this->viewData
-            ], $data);
+            if (!file_exists($viewFile)) {
+                throw new Exception("View file not found: " . $file . ".php");
+            }
 
-            extract($viewData);
-
-            include $file;
+            $this->viewData = array_merge($this->viewData, $data);
+            
+            extract($this->viewData);
+            
+            include $viewFile;
         }
 
         public function json($data, $flag = JSON_UNESCAPED_SLASHES) {
-            header("Content-Type: Application/JSON");
+            $this->withHeaders("content-type", "application/json");
             echo json_encode($data, $flag);
+        }
+        
+        public function custom($content, $type = "text/plain", $isFile = false) {
+            $this->withHeaders("content-type", $type);
+            if (!$isFile) {
+                echo $content;
+            } else {
+                if (!file_exists($_SERVER["DOCUMENT_ROOT"] . "/" . $content)) {
+                    throw new Exception("File not found: " . $content);
+                }
+                include $_SERVER["DOCUMENT_ROOT"] . "/" . $content;
+            }
         }
 
         public function redirect($uri) {
-            header("Location: ". $uri);
+            $this->withHeaders("Location", $uri);
+            exit();
         }
 
     }

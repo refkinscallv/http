@@ -2,7 +2,9 @@
 
     namespace RF\Http\Component\Request;
 
-    class Files {
+    use Exception;
+
+    class File {
 
         private $files;
 
@@ -19,14 +21,26 @@
         }
 
         public function get($name) {
-            return $this->has($name) ? $this->files[$name] : null;
+            if (!$this->has($name)) {
+                return false;
+            }
+            return $this->files[$name];
         }
         
         public function move($name, $destination) {
-            if ($this->has($name) && is_uploaded_file($this->files[$name]['tmp_name'])) {
-                return move_uploaded_file($this->files[$name]['tmp_name'], $destination);
+            if (!$this->has($name)) {
+                throw new Exception("File '{$name}' does not exist.");
             }
-            return false;
+
+            if (!is_uploaded_file($this->files[$name]['tmp_name'])) {
+                throw new Exception("File '{$name}' is not a valid uploaded file.");
+            }
+
+            if (!move_uploaded_file($this->files[$name]['tmp_name'], $destination)) {
+                throw new Exception("Failed to move the uploaded file '{$name}' to '{$destination}'.");
+            }
+
+            return true;
         }
 
         public function getOriginalName($name) {

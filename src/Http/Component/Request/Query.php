@@ -2,12 +2,12 @@
 
     namespace RF\Http\Component\Request;
 
-    use RF\Http\HttpHelper;
+    use RF\Http\Helper;
+    use Exception;
 
     class Query {
 
         private $query;
-
         private $filteredQuery = false;
 
         public function __construct() {
@@ -15,10 +15,16 @@
         }
 
         private function manageData($data) {
+            if (!is_array($data)) {
+                throw new Exception("Expected input to be an array, received " . gettype($data));
+            }
+
             $newData = [];
 
-            foreach($data as $key => $value) {
-                $newData[HttpHelper::sanitize($key)] = HttpHelper::sanitize($value);
+            foreach ($data as $key => $value) {
+                $sanitizedKey = Helper::sanitize($key);
+                $sanitizedValue = Helper::sanitize($value);
+                $newData[$sanitizedKey] = $sanitizedValue;
             }
 
             return $newData;
@@ -29,6 +35,9 @@
         }
 
         public function get($key) {
+            if (!$this->has($key)) {
+                return false;
+            }
             return $this->query[$key];
         }
 
@@ -37,19 +46,25 @@
         }
 
         public function some($keys) {
-            $this->filteredQuery = HttpHelper::filterArrayKeys($this->query, $keys);
+            if (!is_array($keys)) {
+                throw new Exception("Expected keys to be an array, received " . gettype($keys));
+            }
+            $this->filteredQuery = Helper::filterArrayKeys($this->query, $keys);
             return $this->filteredQuery;
         }
 
         public function someRecursive($keys) {
-            $this->filteredQuery = HttpHelper::filterArrayKeysRecursive($this->query, $keys);
+            if (!is_array($keys)) {
+                throw new Exception("Expected keys to be an array, received " . gettype($keys));
+            }
+            $this->filteredQuery = Helper::filterArrayKeysRecursive($this->query, $keys);
             return $this->filteredQuery;
         }
 
         public function count() {
             return [
                 "total" => count($this->query),
-                "filtered" => count($this->filteredQuery)
+                "filtered" => $this->filteredQuery ? count($this->filteredQuery) : 0
             ];
         }
 

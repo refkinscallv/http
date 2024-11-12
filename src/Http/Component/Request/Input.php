@@ -2,7 +2,8 @@
 
     namespace RF\Http\Component\Request;
 
-    use RF\Http\HttpHelper;
+    use RF\Http\Helper;
+    use Exception;
 
     class Input {
 
@@ -19,10 +20,16 @@
         }
 
         private function manageData($data) {
+            if (!is_array($data)) {
+                throw new Exception("Expected input data to be an array, received " . gettype($data));
+            }
+
             $newData = [];
 
-            foreach($data as $key => $value) {
-                $newData[HttpHelper::sanitize($key)] = HttpHelper::sanitize($value);
+            foreach ($data as $key => $value) {
+                $sanitizedKey = Helper::sanitize($key);
+                $sanitizedValue = Helper::sanitize($value);
+                $newData[$sanitizedKey] = $sanitizedValue;
             }
 
             return $newData;
@@ -33,7 +40,10 @@
         }
 
         public function get($key) {
-            return $this->input[$key] ?? null;
+            if (!$this->has($key)) {
+                return false;
+            }
+            return $this->input[$key];
         }
 
         public function has($key) {
@@ -41,19 +51,25 @@
         }
 
         public function some($keys) {
-            $this->filteredInput = HttpHelper::filterArrayKeys($this->input, $keys);
+            if (!is_array($keys)) {
+                throw new Exception("Expected keys to be an array, received " . gettype($keys));
+            }
+            $this->filteredInput = Helper::filterArrayKeys($this->input, $keys);
             return $this->filteredInput;
         }
 
         public function someRecursive($keys) {
-            $this->filteredInput = HttpHelper::filterArrayKeysRecursive($this->input, $keys);
+            if (!is_array($keys)) {
+                throw new Exception("Expected keys to be an array, received " . gettype($keys));
+            }
+            $this->filteredInput = Helper::filterArrayKeysRecursive($this->input, $keys);
             return $this->filteredInput;
         }
 
         public function count() {
             return [
                 "total" => count($this->input),
-                "filtered" => count($this->filteredInput)
+                "filtered" => $this->filteredInput ? count($this->filteredInput) : 0
             ];
         }
 
